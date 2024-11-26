@@ -9,6 +9,7 @@ import android.net.ProxyInfo
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.os.PowerManager
+import android.util.Log
 import io.nekohasekai.sagernet.*
 import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.fmt.LOCALHOST
@@ -16,22 +17,60 @@ import io.nekohasekai.sagernet.fmt.hysteria.HysteriaBean
 import io.nekohasekai.sagernet.ktx.*
 import io.nekohasekai.sagernet.ui.VpnRequestActivity
 import io.nekohasekai.sagernet.utils.Subnet
-import libcore.*
-import moe.matsuri.nb4a.net.LocalResolverImpl
 import moe.matsuri.nb4a.proxy.neko.needBypassRootUid
+import kotlin.random.Random
 import android.net.VpnService as BaseVpnService
 
-class VpnService : BaseVpnService(),
-    BaseService.Interface {
-
+class VpnService : BaseVpnService(), BaseService.Interface {
+    val TAG = "VpnService"
     companion object {
+        var PRIVATE_VLAN4_CLIENT: String = "172.19.0.1"
+        var PRIVATE_VLAN4_ROUTER: String = "172.19.0.2"
+        var FAKEDNS_VLAN4_CLIENT: String = "198.18.0.0"
+        var PRIVATE_VLAN6_CLIENT: String = "fdfe:dcba:9876::1"
+        var PRIVATE_VLAN6_ROUTER: String = "fdfe:dcba:9876::2"
 
-        const val PRIVATE_VLAN4_CLIENT = "172.19.0.1"
-        const val PRIVATE_VLAN4_ROUTER = "172.19.0.2"
-        const val FAKEDNS_VLAN4_CLIENT = "198.18.0.0"
-        const val PRIVATE_VLAN6_CLIENT = "fdfe:dcba:9876::1"
-        const val PRIVATE_VLAN6_ROUTER = "fdfe:dcba:9876::2"
+        fun randomIP() {
+            PRIVATE_VLAN4_CLIENT = generatePrivateVlan4Client()
+            PRIVATE_VLAN4_ROUTER = generatePrivateVlan4Router()
+            FAKEDNS_VLAN4_CLIENT = generateFakeDnsVlan4Client()
+            PRIVATE_VLAN6_CLIENT = generatePrivateVlan6Client()
+        }
 
+        fun generatePrivateVlan4Client(): String {
+            val octet1 = Random.nextInt(1, 256)
+            val octet2 = Random.nextInt(0, 256)
+            val octet3 = Random.nextInt(0, 256)
+            val octet4 = Random.nextInt(0, 256)
+
+            return "$octet1.$octet2.0.1"
+        }
+
+        fun generatePrivateVlan4Router(): String {
+            val octet1 = Random.nextInt(1, 256)
+            val octet2 = Random.nextInt(0, 256)
+            val octet3 = Random.nextInt(0, 256)
+            val octet4 = Random.nextInt(0, 256)
+
+            return "$octet1.$octet2.0.$octet4"
+        }
+
+        fun generateFakeDnsVlan4Client(): String {
+            val octet1 = Random.nextInt(1, 256)
+            val octet2 = Random.nextInt(0, 256)
+            val octet3 = Random.nextInt(0, 256)
+            val octet4 = Random.nextInt(0, 256)
+
+            return "$octet1.$octet2.0.0"
+        }
+
+        fun generatePrivateVlan6Client(): String {
+            val blocks = List(3) {
+                String.format("%04x", Random.nextInt(0, 65536)) // Use %04x for lowercase hex
+            }
+
+            return blocks.joinToString(":") + "::1"
+        }
     }
 
     var conn: ParcelFileDescriptor? = null
@@ -71,6 +110,8 @@ class VpnService : BaseVpnService(),
         ServiceNotification(this, profileName, "service-vpn")
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onStartCommand")
+        randomIP()
         if (DataStore.serviceMode == Key.MODE_VPN) {
             if (prepare(this) != null) {
                 startActivity(
@@ -90,9 +131,7 @@ class VpnService : BaseVpnService(),
     }
 
     fun startVpn(tunOptionsJson: String, tunPlatformOptionsJson: String): Int {
-//        Logs.d(tunOptionsJson)
-//        Logs.d(tunPlatformOptionsJson)
-//        val tunOptions = JSONObject(tunOptionsJson)
+        Log.d(TAG, "startVpn: $tunOptionsJson")
 
         // address & route & MTU ...... use NB4A GUI config
         val builder = Builder().setConfigureIntent(SagerNet.configureIntent(this))
