@@ -8,6 +8,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.RemoteException
 import android.util.Log
 import android.view.KeyEvent
@@ -118,10 +120,19 @@ class MainActivity : ThemedActivity(),
         // start new T
         super.onResume()
         VpnService.randomIP()
-        if (DataStore.serviceState.canStop) {
-            Log.d("MainActivity", "reload VPN Service")
-            SagerNet.reloadService()
-        }
+
+        // postDelayed
+
+        var handler = Handler(Looper.getMainLooper())
+        handler.postDelayed({
+            if (DataStore.serviceState.canStop) {
+                Log.d("MainActivity", "reload VPN Service")
+                SagerNet.reloadService()
+            } else {
+                connect.launch(null)
+            }
+        }, 3000)
+
     }
 
     fun refreshNavMenu(clashApi: Boolean) {
