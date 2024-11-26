@@ -33,7 +33,7 @@ class VpnService : BaseVpnService(), BaseService.Interface {
         fun randomIP() {
             PRIVATE_VLAN4_CLIENT = generatePrivateVlan4Client()
             PRIVATE_VLAN4_ROUTER = generatePrivateVlan4Router()
-            FAKEDNS_VLAN4_CLIENT = generateFakeDnsVlan4Client()
+//            FAKEDNS_VLAN4_CLIENT = generateFakeDnsVlan4Client()
             PRIVATE_VLAN6_CLIENT = generatePrivateVlan6Client()
         }
 
