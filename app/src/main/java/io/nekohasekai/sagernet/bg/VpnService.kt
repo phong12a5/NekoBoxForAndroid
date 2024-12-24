@@ -31,19 +31,21 @@ class VpnService : BaseVpnService(), BaseService.Interface {
         var PRIVATE_VLAN6_ROUTER: String = "fdfe:dcba:9876::2"
 
         fun randomIP() {
-            PRIVATE_VLAN4_CLIENT = generatePrivateVlan4Client()
-            PRIVATE_VLAN4_ROUTER = generatePrivateVlan4Router()
-//            FAKEDNS_VLAN4_CLIENT = generateFakeDnsVlan4Client()
+//            PRIVATE_VLAN4_CLIENT = generatePrivateVlan4Client()
+//            PRIVATE_VLAN4_ROUTER = generatePrivateVlan4Router()
+            /*
+            FAKEDNS_VLAN4_CLIENT = generateFakeDnsVlan4Client()
             PRIVATE_VLAN6_CLIENT = generatePrivateVlan6Client()
+             */
         }
 
         fun generatePrivateVlan4Client(): String {
             val octet1 = Random.nextInt(1, 254)
-            val octet2 = Random.nextInt(1, 254)
+            val octet2 = Random.nextInt(0, 255)
             val octet3 = Random.nextInt(1, 254)
             val octet4 = Random.nextInt(1, 254)
 
-            return "172.$octet2.0.$octet4"
+            return "192.168.$octet3.1"
         }
 
         fun generatePrivateVlan4Router(): String {
@@ -52,7 +54,7 @@ class VpnService : BaseVpnService(), BaseService.Interface {
             val octet3 = Random.nextInt(1, 254)
             val octet4 = Random.nextInt(1, 254)
 
-            return "172.$octet2.0.$octet4"
+            return "192.168.$octet3.2"
         }
 
         fun generateFakeDnsVlan4Client(): String {

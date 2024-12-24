@@ -48,6 +48,8 @@ class MainActivity : ThemedActivity(),
     OnPreferenceDataStoreChangeListener,
     NavigationView.OnNavigationItemSelectedListener {
 
+    val TAG = "MainActivity"
+
     lateinit var binding: LayoutMainBinding
     lateinit var navigation: NavigationView
 
@@ -164,6 +166,7 @@ class MainActivity : ThemedActivity(),
     }
 
     suspend fun importSubscription(uri: Uri) {
+        Log.d(TAG, "importSubscription: $uri")
         val group: ProxyGroup
 
         val url = uri.getQueryParameter("url")
