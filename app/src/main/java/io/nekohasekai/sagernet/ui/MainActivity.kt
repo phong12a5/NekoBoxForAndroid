@@ -8,7 +8,10 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.RemoteException
+import android.util.Log
 import android.view.KeyEvent
 import android.view.MenuItem
 import androidx.activity.addCallback
@@ -26,6 +29,7 @@ import io.nekohasekai.sagernet.aidl.SpeedDisplayData
 import io.nekohasekai.sagernet.aidl.TrafficData
 import io.nekohasekai.sagernet.bg.BaseService
 import io.nekohasekai.sagernet.bg.SagerConnection
+import io.nekohasekai.sagernet.bg.VpnService
 import io.nekohasekai.sagernet.database.*
 import io.nekohasekai.sagernet.database.preference.OnPreferenceDataStoreChangeListener
 import io.nekohasekai.sagernet.databinding.LayoutMainBinding
@@ -43,6 +47,8 @@ class MainActivity : ThemedActivity(),
     SagerConnection.Callback,
     OnPreferenceDataStoreChangeListener,
     NavigationView.OnNavigationItemSelectedListener {
+
+    val TAG = "MainActivity"
 
     lateinit var binding: LayoutMainBinding
     lateinit var navigation: NavigationView
@@ -112,6 +118,25 @@ class MainActivity : ThemedActivity(),
         }
     }
 
+    override fun onResume() {
+        // start new T
+        super.onResume()
+        VpnService.randomIP()
+
+        // postDelayed
+
+        var handler = Handler(Looper.getMainLooper())
+        handler.postDelayed({
+            if (DataStore.serviceState.canStop) {
+                Log.d("MainActivity", "reload VPN Service")
+                SagerNet.reloadService()
+            } else {
+                connect.launch(null)
+            }
+        }, 3000)
+
+    }
+
     fun refreshNavMenu(clashApi: Boolean) {
         if (::navigation.isInitialized) {
             navigation.menu.findItem(R.id.nav_traffic)?.isVisible = clashApi
@@ -141,6 +166,7 @@ class MainActivity : ThemedActivity(),
     }
 
     suspend fun importSubscription(uri: Uri) {
+        Log.d(TAG, "importSubscription: $uri")
         val group: ProxyGroup
 
         val url = uri.getQueryParameter("url")
