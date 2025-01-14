@@ -139,6 +139,17 @@ object ProfileManager {
         }
     }
 
+    fun getAllProfiles(): List<ProxyEntity> {
+        return try {
+            SagerDatabase.proxyDao.getAll()
+        } catch (ex: SQLiteCantOpenDatabaseException) {
+            throw IOException(ex)
+        } catch (ex: SQLException) {
+            Logs.w(ex)
+            listOf()
+        }
+    }
+
     // postUpdate: post to listeners, don't change the DB
 
     suspend fun postUpdate(profileId: Long, noTraffic: Boolean = false) {

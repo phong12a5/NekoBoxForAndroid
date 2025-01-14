@@ -10,6 +10,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.format.Formatter
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -110,6 +111,10 @@ class ConfigurationFragment @JvmOverloads constructor(
         }
     }
 
+    private val connect = registerForActivityResult(VpnRequestActivity.StartService()) {
+        if (it) snackbar(R.string.vpn_permission_denied).show()
+    }
+
     override fun onQueryTextChange(query: String): Boolean {
         getCurrentGroupFragment()?.adapter?.filter(query)
         return false
@@ -126,6 +131,55 @@ class ConfigurationFragment @JvmOverloads constructor(
                 .detach(this)
                 .attach(this)
                 .commit()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (DataStore.serviceState.canStop) SagerNet.stopService()
+
+        runOnMainDispatcher {
+            delay(1000)
+            var existed_proxies = ProfileManager.getAllProfiles()
+            for (profile in existed_proxies) {
+                adapter.groupFragments[DataStore.selectedGroup]?.adapter?.apply {
+                    val index = configurationIdList.indexOf(profile.id)
+                    if (index >= 0) {
+                        configurationIdList.removeAt(index)
+                        configurationList.remove(profile.id)
+                        notifyItemRemoved(index)
+                    }
+                }
+            }
+        }
+
+
+        runOnDefaultDispatcher {
+            delay(2000)
+            var existed_proxies = ProfileManager.getAllProfiles()
+            for (profile in existed_proxies) {
+                ProfileManager.deleteProfile2(
+                    profile.groupId, profile.id
+                )
+            }
+
+            var text = SagerNet.getClipboardText()
+            val proxies = RawUpdater.parseRaw(text)
+            if (!proxies.isNullOrEmpty()) import(proxies)
+            adapter.selectedGroupIndex = 0
+            adapter?.reload(true)
+            groupPager.setCurrentItem(0, false)
+
+            existed_proxies = ProfileManager.getAllProfiles()
+            if (existed_proxies.size > 0) {
+                var profile = existed_proxies[0]
+                DataStore.selectedGroup = profile.groupId
+                DataStore.selectedProxy = profile.id
+                delay(1000)
+                connect.launch(
+                    null
+                )
+            }
         }
     }
 
