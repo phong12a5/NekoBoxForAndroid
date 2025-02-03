@@ -62,6 +62,12 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/Theme.Start">
+        <service
+            android:name=".bg.GFVpnManagerService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="io.nekohasekai.sagernet.permission.VPN"></service>
+
         <meta-data
             android:name="android.app.shortcuts"
             android:resource="@xml/shortcuts" />
