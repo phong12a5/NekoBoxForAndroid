@@ -147,12 +147,12 @@ object DataStore : OnPreferenceDataStoreChangeListener {
         configurationStore.putString(key, "$value")
     }
 
-    var ipv6Mode by configurationStore.stringToInt(Key.IPV6_MODE) { IPv6Mode.DISABLE }
+    var ipv6Mode by configurationStore.stringToInt(Key.IPV6_MODE) { IPv6Mode.PREFER }
 
     var meteredNetwork by configurationStore.boolean(Key.METERED_NETWORK)
-    var proxyApps by configurationStore.boolean(Key.PROXY_APPS)
-    var bypass by configurationStore.boolean(Key.BYPASS_MODE) { true }
-    var individual by configurationStore.string(Key.INDIVIDUAL)
+    var proxyApps by configurationStore.boolean(Key.PROXY_APPS) { true }
+    var bypass by configurationStore.boolean(Key.BYPASS_MODE)
+    var individual by configurationStore.string(Key.INDIVIDUAL) { "com.facebook.katana\ncom.android.chrome" }
     var showDirectSpeed by configurationStore.boolean(Key.SHOW_DIRECT_SPEED) { true }
 
     val persistAcrossReboot by configurationStore.boolean(Key.PERSIST_ACROSS_REBOOT) { false }

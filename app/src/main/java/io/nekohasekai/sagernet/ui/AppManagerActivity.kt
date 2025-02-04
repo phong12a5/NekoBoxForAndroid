@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.*
 import android.widget.Filter
@@ -92,6 +93,7 @@ class AppManagerActivity : ThemedActivity() {
             if (isProxiedApp(item)) proxiedUids.delete(item.uid) else proxiedUids[item.uid] = true
             DataStore.individual = apps.filter { isProxiedApp(it) }
                 .joinToString("\n") { it.packageName }
+            Log.d("AHIHI", "DataStore.individual: ${DataStore.individual}")
 
             appsAdapter.notifyItemRangeChanged(0, appsAdapter.itemCount, SWITCH)
         }
@@ -256,6 +258,7 @@ class AppManagerActivity : ThemedActivity() {
                     }
                     DataStore.individual = apps.filter { isProxiedApp(it) }
                         .joinToString("\n") { it.packageName }
+                    Log.d("onOptionsItemSelected", "DataStore.individual: ${DataStore.individual}")
                     apps = apps.sortedWith(compareBy({ !isProxiedApp(it) }, { it.name.toString() }))
                     onMainDispatcher {
                         appsAdapter.filter.filter(binding.search.text?.toString() ?: "")
@@ -338,6 +341,7 @@ class AppManagerActivity : ThemedActivity() {
                     }
                     DataStore.individual =
                         apps.filter { isProxiedApp(it) }.joinToString("\n") { it.packageName }
+                    Log.d("selectProxyApp", "DataStore.individual: ${DataStore.individual}")
                     apps = apps.sortedWith(compareBy({ !isProxiedApp(it) }, { it.name.toString() }))
                     appsAdapter.filter.filter(binding.search.text?.toString() ?: "")
                 } catch (e: Exception) {

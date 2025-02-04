@@ -92,6 +92,7 @@
 
     <PreferenceCategory app:title="@string/cag_route">
         <SwitchPreference
+            app:defaultValue="true"
             app:icon="@drawable/ic_navigation_apps"
             app:key="proxyApps"
             app:summary="@string/proxied_apps_summary"
@@ -117,7 +118,7 @@
             app:summary="@string/resolve_destination_summary"
             app:title="@string/resolve_destination" />
         <moe.matsuri.nb4a.ui.SimpleMenuPreference
-            app:defaultValue="0"
+            app:defaultValue="2"
             app:entries="@array/ipv6_mode"
             app:entryValues="@array/int_array_4"
             app:icon="@drawable/ic_image_looks_6"
