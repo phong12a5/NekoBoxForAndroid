@@ -63,10 +63,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Start">
         <service
-            android:name=".bg.GFVpnManagerService"
+            android:name=".bg.GFProxyManagerService"
             android:enabled="true"
             android:exported="true"
-            android:permission="io.nekohasekai.sagernet.permission.VPN"/>
+            tools:ignore="ExportedService" />
 
         <meta-data
             android:name="android.app.shortcuts"
