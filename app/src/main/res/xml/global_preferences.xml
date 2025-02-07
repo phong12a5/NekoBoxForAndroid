@@ -7,7 +7,7 @@
             app:key="nekoPlugins"
             app:title="@string/neko_plugin" />
         <SwitchPreference
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:icon="@drawable/ic_communication_phonelink_ring"
             app:key="isAutoConnect"
             app:summary="@string/auto_connect_summary"
