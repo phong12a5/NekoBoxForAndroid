@@ -8,6 +8,7 @@ import android.util.Log
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.aidl.IGFProxyManager
+import io.nekohasekai.sagernet.aidl.ISagerNetService
 import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.database.ProfileManager
 import io.nekohasekai.sagernet.fmt.AbstractBean
@@ -18,12 +19,15 @@ import io.nekohasekai.sagernet.ktx.snackbar
 import io.nekohasekai.sagernet.ui.VpnRequestActivity
 import kotlinx.coroutines.delay
 
-class GFProxyManagerService : Service() {
+class GFProxyManagerService : Service(), SagerConnection.Callback {
     val TAG = "GFVpnManagerService"
     lateinit var mContext : Context
+
+    private val connection = SagerConnection(SagerConnection.CONNECTION_ID_GFPROXY_MGR_SERVICE)
+
     private val mIBinder = object : IGFProxyManager.Stub() {
         override fun getProxyStatus(): Int {
-            return DataStore.serviceState.ordinal
+            return proxyState.ordinal
         }
 
         override fun getCurrentProxyUri(): String? {
@@ -43,7 +47,6 @@ class GFProxyManagerService : Service() {
         }
 
         override fun startProxy(uri: String?): Boolean {
-            Log.d(TAG, "startProxy: $uri")
             runOnMainDispatcher {
                 var existed = false;
                 var existed_proxies = ProfileManager.getAllProfiles()
@@ -60,7 +63,7 @@ class GFProxyManagerService : Service() {
                     )
                 }
 
-                if (existed) {
+                if (!existed) {
                     val imported_proxies = uri?.let { RawUpdater.parseRaw(it) }
                     if (!imported_proxies.isNullOrEmpty()) import(imported_proxies)
                     existed_proxies = ProfileManager.getAllProfiles()
@@ -87,6 +90,8 @@ class GFProxyManagerService : Service() {
 
     }
 
+    private var proxyState = BaseService.State.Idle
+
     suspend fun import(proxies: List<AbstractBean>) {
         val targetId = DataStore.selectedGroupForImport()
         for (proxy in proxies) {
@@ -99,9 +104,23 @@ class GFProxyManagerService : Service() {
     override fun onCreate() {
         super.onCreate()
         mContext = this
+        connection.connect(this, this)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        connection.disconnect(this)
     }
 
     override fun onBind(intent: Intent): IBinder {
         return mIBinder
+    }
+
+    override fun stateChanged(state: BaseService.State, profileName: String?, msg: String?) {
+        proxyState = state
+    }
+
+    override fun onServiceConnected(service: ISagerNetService) {
+        proxyState = BaseService.State.values()[service.state]
     }
 }

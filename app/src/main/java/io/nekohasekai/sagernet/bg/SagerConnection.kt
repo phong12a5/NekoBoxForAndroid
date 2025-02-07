@@ -32,6 +32,7 @@ class SagerConnection(
         const val CONNECTION_ID_TILE = 1
         const val CONNECTION_ID_MAIN_ACTIVITY_FOREGROUND = 2
         const val CONNECTION_ID_MAIN_ACTIVITY_BACKGROUND = 3
+        const val CONNECTION_ID_GFPROXY_MGR_SERVICE = 4
     }
 
     interface Callback {
