@@ -40,10 +40,7 @@ class GFProxyManagerService : Service(), SagerConnection.Callback {
         }
 
         override fun isReady(): Boolean {
-            if (android.net.VpnService.prepare(mContext) != null) {
-                return false
-            }
-            return true
+            return android.net.VpnService.prepare(mContext) == null
         }
 
         override fun startProxy(uri: String?): Boolean {
@@ -73,9 +70,13 @@ class GFProxyManagerService : Service(), SagerConnection.Callback {
                     delay(1000)
                 }
 
-                startActivity(
-                    Intent( mContext, VpnRequestActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                )
+                if (android.net.VpnService.prepare(mContext) != null) {
+                    startActivity(
+                        Intent( mContext, VpnRequestActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    )
+                } else {
+                    SagerNet.startService()
+                }
             }
             return false
         }
