@@ -46,9 +46,9 @@ class GFProxyManagerService : Service(), SagerConnection.Callback {
         override fun startProxy(uri: String?): Boolean {
             runOnMainDispatcher {
                 var existed = false;
-                var existed_proxies = ProfileManager.getAllProfiles()
-                for (profile in existed_proxies) {
-                    if (uri == profile.toStdLink()) {
+                var existedProxies = ProfileManager.getAllProfiles()
+                for (profile in existedProxies) {
+                    if (profile.toStdLink().startsWith(uri!!)) {
                         existed = true
                         DataStore.selectedGroup = profile.groupId
                         DataStore.selectedProxy = profile.id
@@ -61,10 +61,10 @@ class GFProxyManagerService : Service(), SagerConnection.Callback {
                 }
 
                 if (!existed) {
-                    val imported_proxies = uri?.let { RawUpdater.parseRaw(it) }
-                    if (!imported_proxies.isNullOrEmpty()) import(imported_proxies)
-                    existed_proxies = ProfileManager.getAllProfiles()
-                    var profile = existed_proxies[0]
+                    val importedProxies = uri?.let { RawUpdater.parseRaw(it) }
+                    if (!importedProxies.isNullOrEmpty()) import(importedProxies)
+                    existedProxies = ProfileManager.getAllProfiles()
+                    var profile = existedProxies[0]
                     DataStore.selectedGroup = profile.groupId
                     DataStore.selectedProxy = profile.id
                     delay(1000)

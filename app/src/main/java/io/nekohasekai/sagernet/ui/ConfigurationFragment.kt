@@ -10,6 +10,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.format.Formatter
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -212,6 +213,27 @@ class ConfigurationFragment @JvmOverloads constructor(
                         groupPager.setCurrentItem(targetIndex, false)
                     } else {
                         adapter.reload()
+                    }
+                }
+
+                adapter.groupFragments[DataStore.selectedGroup]?.adapter?.apply {
+                    var existedProxies = ProfileManager.getAllProfiles()
+
+                    for (profile in configurationList) {
+                        var  index = configurationIdList.indexOf(profile.value.id)
+                        var exist = false
+                        for (existProfile in existedProxies) {
+                            if (existProfile.id == profile.value.id) {
+                                exist = true
+                                break
+                            }
+                        }
+
+                        if (!exist) {
+                            configurationIdList.removeAt(index)
+                            configurationList.remove(profile.key)
+                            notifyItemRemoved(index)
+                        }
                     }
                 }
             }
