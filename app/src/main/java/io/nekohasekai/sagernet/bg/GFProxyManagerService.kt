@@ -82,7 +82,7 @@ class GFProxyManagerService : Service(), SagerConnection.Callback {
         }
 
         override fun stopProxy(): Boolean {
-            if (DataStore.serviceState.canStop) {
+            if (proxyState.canStop) {
                 SagerNet.stopService()
                 return true
             }
